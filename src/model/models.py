@@ -7,7 +7,7 @@ class Greeting(db.Model):
     date = db.DateTimeProperty(auto_now_add=True)
 
 class UserProperty(db.Model):
-    userid = db.IntegerProperty()
+    email = db.StringProperty()
     worktime_sec = db.IntegerProperty()
     worktime_day = db.IntegerProperty()
     overtime_sec = db.IntegerProperty()
@@ -38,7 +38,7 @@ class UserProperty(db.Model):
     def __getMins(self, secs):
         return (secs % 3600) / 60
 
-    def __getHours(self, hours):
+    def __getHours(self, secs):
         return secs / 3600
 
     def __getSecs(self, secs):

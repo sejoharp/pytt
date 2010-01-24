@@ -1,11 +1,13 @@
-from google.appengine.ext.webapp.util import run_wsgi_app
+from controller.IndexHandler import IndexHandler
+from controller.OverviewHandler import Overviewhandler
+from controller.PropertyHandler import PropertyHandler
 from google.appengine.ext import webapp
-from controller import classes 
+from google.appengine.ext.webapp.util import run_wsgi_app
 
 application = webapp.WSGIApplication(
-                                     [('/', classes.MainPage),
-                                      ('/sign', classes.Guestbook),
-                                      ('/test', classes.DBTest)],
+                                     [('/', IndexHandler),
+                                      ('/properties', PropertyHandler),
+                                      ('/overview', Overviewhandler)],
                                      debug=True)
 
 def main():
