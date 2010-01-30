@@ -130,7 +130,7 @@ html {
     font-size: 10pt;
     font-family: Arial,Helvetica;
     color: #333333;
-    background: url('../images/background.png') repeat-x #3A3A3A;
+    background-color: #707070;
 }
 
 a {
@@ -200,18 +200,18 @@ div.error {
 }
 
 .header {
-    background: url('../images/header.png');
     color: white;
+    background-color: #022468;
     border-bottom: 1px #99f solid;
 }
 
 .statusbar {
-    background: url('../images/menu.png');
+	background-color: #2278A9;
     border-bottom: 1px #99f solid;
 }
 
 .footer {
-    background: url('../images/header.png');
+    background-color: #022468;
     color: white;
     border-top: 1px #99f solid;
 }

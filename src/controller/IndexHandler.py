@@ -1,13 +1,14 @@
 from google.appengine.api import users
 from google.appengine.ext import webapp, db
 from google.appengine.ext.webapp import template
-from model.models import UserProperty
+from model.models import Property
 import os
 
 class IndexHandler(webapp.RequestHandler):
     def get(self):
         user = users.get_current_user()
-        query = db.GqlQuery("select * from UserProperty where email = :email ", email=user.email())
+        query = db.GqlQuery("select * from Property where email = :email"
+                            " and worktime !=null", email=user.email())
         amount = query.count(10)
 
 #        if userProperty.__len__() != 1:
