@@ -15,7 +15,7 @@ class Converter():
         if dt is not None:
             ret = dt.strftime("%H:%M:%S %d.%m.%Y")
         else:
-            ret = dt
+            ret = ""
         return ret
 
     @staticmethod
