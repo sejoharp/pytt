@@ -1,4 +1,4 @@
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, tzinfo
 import time
 
 class Converter():
@@ -40,3 +40,13 @@ class Converter():
     @staticmethod
     def secs_to_dt(secs):
         return datetime.fromtimestamp(secs)
+
+class UTC1(tzinfo):
+    def utcoffset(self, dt):
+        return timedelta(hours=1)
+
+    def tzname(self, dt):
+        return "UTC +1"
+
+    def dst(self, dt):
+        return timedelta(0)

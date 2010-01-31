@@ -1,4 +1,4 @@
-from controller.Helper import Converter
+from controller.Helper import Converter, UTC1
 from datetime import date, datetime, timedelta
 from google.appengine.api import users
 from google.appengine.ext import webapp
@@ -13,6 +13,7 @@ class Overviewhandler(webapp.RequestHandler):
 
         if last_time is None:
             """ never worked """
+            # overtime und worktime koennten angezeigt werden
             self.__setNewUser()
         else:
             # data found
@@ -20,7 +21,7 @@ class Overviewhandler(webapp.RequestHandler):
             if last_time.stop is None:
                 """ is still working """
                 self.__buttonlabel = "stop"
-                times_today[len(times_today) - 1].stop = datetime.now()
+                times_today[len(times_today) - 1].stop = datetime.now(UTC1())
             else:
                 """ is not working """
                 self.__buttonlabel = "start"
@@ -28,7 +29,7 @@ class Overviewhandler(webapp.RequestHandler):
             workedtime = self.__getWorkedtime(times_today)
             workedtime_with_overtime = Converter.td_to_secs(workedtime) + user.overtime
             time_to_work = user.worktime - workedtime_with_overtime
-            finishing_time = datetime.now() + Converter.secs_to_td(time_to_work)
+            finishing_time = datetime.now(UTC1()) + Converter.secs_to_td(time_to_work)
 
             """ format output values """
             self.__worktime_str = Converter.secs_to_str(user.worktime)
@@ -49,10 +50,10 @@ class Overviewhandler(webapp.RequestHandler):
         self.__update_overtime(last_time, user)
 
         if last_time is not None and last_time.stop is None:
-            last_time.stop = datetime.now()
+            last_time.stop = datetime.now(UTC1())
             last_time.put()
         else:
-            new_time = Time(userid=user.key(), start=datetime.now())
+            new_time = Time(userid=user.key(), start=datetime.now(UTC1()))
             new_time.put()
 
         self.redirect('/overview')
@@ -80,7 +81,7 @@ class Overviewhandler(webapp.RequestHandler):
                   "workedtime_today" : self.__workedtime_str,
                   "finishing_time" : self.__finishing_time_str,
                   "time_to_work": self.__time_to_work_str,
-                  "time": Converter.dt_to_str(datetime.now()), }
+                  "time": Converter.dt_to_str(datetime.now(UTC1())), }
 
     def __setNewUser(self):
         """ sets the output values for a new user """
