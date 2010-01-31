@@ -1,3 +1,4 @@
+from controller.Helper import Converter
 from datetime import date, datetime, timedelta
 from google.appengine.api import users
 from google.appengine.ext import webapp
@@ -7,50 +8,112 @@ import os
 
 class Overviewhandler(webapp.RequestHandler):
     def get(self):
-        user = Property.gql("where email = :email",
-                            email=users.get_current_user().email()).get()
-        lastTime = Time.gql("where userid = :userid ORDER BY start DESC",
-                            userid=user.key()).get()
-        if lastTime is None:
-            # never worked
-            start = None
-            stop = None
-            state = "start"
-            workedtime_today = None
-            finishing_time = None
+        user = self.__getUser()
+        last_time = self.__getLastTime(user.key())
+
+        if last_time is None:
+            """ never worked """
+            self.__setNewUser()
         else:
             # data found
-            start = lastTime.start
-            stop = lastTime.stop
-            # alle lastTime-Daten holen, bei dem die Startzeit dem aktuellen Datum entspricht.
-            times_today = Time.gql("where userid = :userid and start >= :heute",
-                                   userid=user.key(), heute=date.today()).fetch(100)
-            if lastTime.stop is None:
-                # is still working
-                state = "stop"
-                # beim letzten lastTime-datensatz die stopzeit auf now setzen
+            times_today = self.__getTimes(user.key(), date.today())
+            if last_time.stop is None:
+                """ is still working """
+                self.__buttonlabel = "stop"
                 times_today[len(times_today) - 1].stop = datetime.now()
             else:
-                # is not working
-                state = "start"
-            # finishing_time berechnen
-            # alle Arbeiteszeiten von heute beruecksichtigen,
-            workedtime_today = timedelta()
-            for time in times_today:
-                workedtime_today += time.stop - time.start
+                """ is not working """
+                self.__buttonlabel = "start"
+                self.__update_overtime(last_time, times_today, user)
 
-            workedtime_with_Overtime = workedtime_today + user.getOvertimedelta()
-            time_to_work = user.getWorktimedelta() - workedtime_with_Overtime
-            finishing_time = datetime.now() + time_to_work
+            workedtime = self.__getWorkedtime(times_today)
+            workedtime_with_overtime = Converter.td_to_secs(workedtime) + user.overtime
+            time_to_work = user.worktime - workedtime_with_overtime
+            finishing_time = datetime.now() + Converter.secs_to_td(time_to_work)
 
-        template_values = {"start": start,
-                           "stop": stop,
-                           "state": state,
-                           "worktime": user.getWorktimedelta(),
-                           "overtime": user.getOvertimedelta(),
-                           "workedtime_today" : workedtime_today,
-                           "finishing_time" : finishing_time,
-                           "time_to_work": time_to_work,
-                           }
+            """ format output values """
+            self.__worktime_str = Converter.secs_to_str(user.worktime)
+            self.__finishing_time_str = Converter.dt_to_str(finishing_time)
+            self.__time_to_work_str = Converter.secs_to_str(time_to_work)
+            self.__workedtime_str = Converter.secs_to_str(Converter.td_to_secs(workedtime))
+            self.__start = Converter.dt_to_str(last_time.start)
+            self.__stop = Converter.dt_to_str(last_time.stop)
+            self.__overtime_str = Converter.secs_to_str(user.overtime)
+
+        output = self.__getOutput()
         path = os.path.join(os.path.dirname(__file__), '../view/overview.html')
-        self.response.out.write(template.render(path, template_values))
+        self.response.out.write(template.render(path, output))
+
+    def post(self):
+        user = self.__getUser()
+        last_time = self.__getLastTime(user.key())
+        if last_time.stop is None:
+            last_time.stop = datetime.now()
+            last_time.put()
+        else:
+            new_time = Time(userid=user.key(), start=datetime.now())
+            new_time.put()
+        self.redirect('/overview')
+
+    def __update_overtime(self, last_time, times_today, user):
+        """ updates the overtime from the given user
+        preconditions: last_time and last_time.stop are not None """
+        if len(times_today) == 0:
+            last_day = last_time.start.replace(hour=0, minute=0, second=0, microsecond=0)
+            times_last_day = self.__getTimes(user.key(), last_day)
+            worked_time = self.__getWorkedtime(times_last_day)
+            workedtime_with_overtime = Converter.td_to_secs(worked_time) + user.overtime
+            user.overtime = workedtime_with_overtime - user.worktime
+            user.put()
+
+    def __getOutput(self):
+        """ returns a dictionary with all output values """
+        return {"start": self.__start,
+                  "stop": self.__stop,
+                  "state": self.__buttonlabel,
+                  "worktime": self.__worktime_str,
+                  "overtime": self.__overtime_str,
+                  "workedtime_today" : self.__workedtime_str,
+                  "finishing_time" : self.__finishing_time_str,
+                  "time_to_work": self.__time_to_work_str,
+                  "time": Converter.dt_to_str(datetime.now()), }
+
+    def __setNewUser(self):
+        """ sets the output values for a new user """
+        self.__start = None
+        self.__stop = None
+        self.__buttonlabel = "start"
+        self.__workedtime_today = None
+        self.__finishing_time = None
+        self.__worktime_str = None
+        self.__overtime_str = None
+        self.__finishing_time_str = None
+        self.__time_to_work_str = None
+        self.__workedtime_str = None
+
+    def __getUser(self):
+        """ returns the properties from the current user """
+        return Property.gql("where email = :email",
+                            email=users.get_current_user().email()).get()
+
+    def __getLastTime(self, userid):
+        """ returns the last time dataset from the given userid """
+        return Time.gql("where userid = :userid ORDER BY start DESC",
+                            userid=userid).get()
+
+    def __getTimes(self, userid, date):
+        """ returns all time datasets from the given date
+        from the given userid """
+        return Time.gql("where userid = :userid and start >= :date",
+                                   userid=userid, date=date).fetch(100)
+
+    def __getWorkedtime(self, times):
+        """ returns the worked time from the given times """
+        workedtime_today = timedelta()
+        for time in times:
+                workedtime_today += time.stop - time.start
+        return workedtime_today
+
+
+
+

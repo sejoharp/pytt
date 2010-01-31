@@ -3,29 +3,28 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
 		<link rel="stylesheet" href="static/css/base.css" type="text/css" media="screen" charset="utf-8">
+		<title>pytt</title>
 	</head> <!-- hier muesste jquery rein -->
 	<body>
         <div class="wrapper">
-            <table style="border: 1px dashed #AAAAAA;" prevstyle=" " class="layout">
+            <table style="border: 1px solid #000000;" prevstyle=" " class="layout">
                 <tbody>
                     <tr>
-                        <td style="border: 1px dashed #AAAAAA;" prevstyle=" " colspan="3" class="header">
+                        <td style="border: 1px solid #000000;" prevstyle=" " colspan="3" class="header">
                             <h1><a href="/">pytt - python time tracker</a></h1>                  
                             <h2>{% block title %}{% endblock %}</h2>
                         </td>
                     </tr>
                     <tr>
-                        <td style="border: 1px dashed #AAAAAA;" prevstyle=" " colspan="3" class="statusbar">[ 
-                            <a href="%7B%7B=URL%28r=request,f=%27user/login%27%29%7D%7D">login</a> |
-                            <a href="%7B%7B=URL%28r=request,f=%27user/register%27%29%7D%7D">register</a> |
-                            <a href="%7B%7B=URL%28r=request,f=%27user/retrieve_password%27%29%7D%7D">lost password</a>
-                            <a href="%7B%7B=URL%28r=request,f=%27user/logout%27%29%7D%7D">logout</a> |
-                            <a href="%7B%7B=URL%28r=request,f=%27user/change_password%27%29%7D%7D">change password</a> |
-                            <a href="%7B%7B=URL%28r=request,f=%27user/profile%27%29%7D%7D">edit profile</a> ]
+                        <td style="border: 1px solid #000000;" prevstyle=" " colspan="3" class="statusbar">[ 
+                            <a href="/properties">current week</a> |
+                            <a href="/properties">current month</a> |
+                            <a href="/properties">edit properties</a> |
+                            <a href="/properties">logout</a> ]
                         </td>
                     </tr>
                     <tr>
-                        <td style="border: 1px dashed #AAAAAA;" prevstyle=" " class="expandable column2">
+                        <td style="border: 1px solid #000000;" prevstyle=" " class="expandable column2">
                             {% block content %}{% endblock %}
                         </td>
                         <!--
@@ -35,10 +34,9 @@
                         //-->
                     </tr>
                     <tr>
-                        <td style="border: 1px dashed #AAAAAA;" prevstyle=" " colspan="10" class="footer">
+                        <td style="border: 1px solid #000000;" prevstyle=" " colspan="10" class="footer">
                             <p>
-                                Copyright © 2009 -
-                                Powered by <a href="http://www.web2py.com">web2py</a>
+                                Powered by google app engine
                             </p>
                         </td>
                     </tr>
