@@ -17,7 +17,8 @@ class Overviewhandler(webapp.RequestHandler):
             self.__setNewUser()
         else:
             # data found
-            times_today = self.__getTimes(user.key(), date.today())
+            today = datetime.now(UTC1()).replace(hour=0, minute=0, second=0, microsecond=0)
+            times_today = self.__getTimes(user.key(), today)
             if last_time.stop is None:
                 """ is still working """
                 self.__buttonlabel = "stop"
@@ -49,11 +50,12 @@ class Overviewhandler(webapp.RequestHandler):
         last_time = self.__getLastTime(user.key())
         self.__update_overtime(last_time, user)
 
+        now = datetime.now(UTC1())
         if last_time is not None and last_time.stop is None:
-            last_time.stop = datetime.now(UTC1())
+            last_time.stop = now
             last_time.put()
         else:
-            new_time = Time(userid=user.key(), start=datetime.now(UTC1()))
+            new_time = Time(userid=user.key(), start=now)
             new_time.put()
 
         self.redirect('/overview')
@@ -62,7 +64,8 @@ class Overviewhandler(webapp.RequestHandler):
         """ updates the overtime from the given user
         preconditions: last_time and last_time.stop are not None """
         if last_time is not None and last_time.stop is not None:
-            times_today = self.__getTimes(user.key(), date.today())
+            today = datetime.now(UTC1()).replace(hour=0, minute=0, second=0, microsecond=0)
+            times_today = self.__getTimes(user.key(), today)
             if len(times_today) == 0:
                 last_day = last_time.start.replace(hour=0, minute=0, second=0, microsecond=0)
                 times_last_day = self.__getTimes(user.key(), last_day)
@@ -103,20 +106,30 @@ class Overviewhandler(webapp.RequestHandler):
 
     def __getLastTime(self, userid):
         """ returns the last time dataset from the given userid """
-        return Time.gql("where userid = :userid ORDER BY start DESC",
+        last_time = Time.gql("where userid = :userid ORDER BY start DESC",
                             userid=userid).get()
+        if last_time is not None:
+            last_time.start = last_time.start.replace(tzinfo=UTC1()) + timedelta(hours=1)
+            if last_time.stop is not None:
+                last_time.stop = last_time.stop.replace(tzinfo=UTC1()) + timedelta(hours=1)
+        return last_time
 
     def __getTimes(self, userid, date):
         """ returns all time datasets from the given date
         from the given userid """
-        return Time.gql("where userid = :userid and start >= :date",
+        times = Time.gql("where userid = :userid and start >= :date",
                                    userid=userid, date=date).fetch(100)
+        for time in times:
+            time.start = time.start.replace(tzinfo=UTC1()) + timedelta(hours=1)
+            if time.stop is not None:
+                time.stop = time.stop.replace(tzinfo=UTC1()) + timedelta(hours=1)
+        return times
 
     def __getWorkedtime(self, times):
         """ returns the worked time from the given times """
         workedtime_today = timedelta()
         for time in times:
-                workedtime_today += time.stop - time.start
+            workedtime_today += time.stop - time.start
         return workedtime_today
 
 
