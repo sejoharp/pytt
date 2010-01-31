@@ -11,8 +11,12 @@ class Converter():
         return timedelta(seconds=seconds)
 
     @staticmethod
-    def dt_to_str(delta):
-        return delta.strftime("%H:%M:%S %d.%m.%Y")
+    def dt_to_str(dt):
+        if dt is not None:
+            ret = dt.strftime("%H:%M:%S %d.%m.%Y")
+        else:
+            ret = dt
+        return ret
 
     @staticmethod
     def secs_to_str(secs):

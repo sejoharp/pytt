@@ -24,7 +24,6 @@ class Overviewhandler(webapp.RequestHandler):
             else:
                 """ is not working """
                 self.__buttonlabel = "start"
-                self.__update_overtime(last_time, times_today, user)
 
             workedtime = self.__getWorkedtime(times_today)
             workedtime_with_overtime = Converter.td_to_secs(workedtime) + user.overtime
@@ -47,24 +46,29 @@ class Overviewhandler(webapp.RequestHandler):
     def post(self):
         user = self.__getUser()
         last_time = self.__getLastTime(user.key())
-        if last_time.stop is None:
+        self.__update_overtime(last_time, user)
+
+        if last_time is not None and last_time.stop is None:
             last_time.stop = datetime.now()
             last_time.put()
         else:
             new_time = Time(userid=user.key(), start=datetime.now())
             new_time.put()
+
         self.redirect('/overview')
 
-    def __update_overtime(self, last_time, times_today, user):
+    def __update_overtime(self, last_time, user):
         """ updates the overtime from the given user
         preconditions: last_time and last_time.stop are not None """
-        if len(times_today) == 0:
-            last_day = last_time.start.replace(hour=0, minute=0, second=0, microsecond=0)
-            times_last_day = self.__getTimes(user.key(), last_day)
-            worked_time = self.__getWorkedtime(times_last_day)
-            workedtime_with_overtime = Converter.td_to_secs(worked_time) + user.overtime
-            user.overtime = workedtime_with_overtime - user.worktime
-            user.put()
+        if last_time is not None and last_time.stop is not None:
+            times_today = self.__getTimes(user.key(), date.today())
+            if len(times_today) == 0:
+                last_day = last_time.start.replace(hour=0, minute=0, second=0, microsecond=0)
+                times_last_day = self.__getTimes(user.key(), last_day)
+                worked_time = self.__getWorkedtime(times_last_day)
+                workedtime_with_overtime = Converter.td_to_secs(worked_time) + user.overtime
+                user.overtime = workedtime_with_overtime - user.worktime
+                user.put()
 
     def __getOutput(self):
         """ returns a dictionary with all output values """
