@@ -1,4 +1,5 @@
 from datetime import timedelta, datetime, tzinfo
+import math
 import time
 
 class Converter():
@@ -20,17 +21,17 @@ class Converter():
 
     @staticmethod
     def secs_to_str(secs):
-        hour = secs / 3600
-        min = (secs % 3600) / 60
-        sec = secs % 60
+        hour = Converter.get_full_part(secs, 3600)
+        min = Converter.get_min_from_timestamp(secs, hour)
+        sec = Converter.get_sec_from_timestamp(secs, hour, min)
         return str(hour) + "h " + str(min) + "m " + str(sec) + "s"
 
     @staticmethod
     def td_to_str(delta):
         day = delta.days
-        hour = delta.seconds / 3600
-        min = (delta.seconds % 3600) / 60
-        sec = delta.seconds % 60
+        hour = Converter.get_full_part(delta.seconds, 3600)
+        min = Converter.get_min_from_timestamp(delta.seconds, hour)
+        sec = Converter.get_sec_from_timestamp(delta.seconds, hour, min)
         return str(day) + "d " + str(hour) + "h " + str(min) + "m " + str(sec) + "s"
 
     @staticmethod
@@ -38,8 +39,34 @@ class Converter():
         return time.mktime(value.timetuple())
 
     @staticmethod
+    def get_sec_from_timestamp(timestamp, hour, mins):
+        return Converter.get_full_part(timestamp - (hour * 3600 + mins * 60), 60)
+
+    @staticmethod
+    def get_hour_from_timestamp(timestamp):
+        return Converter.get_full_part(timestamp, 3600)
+
+    @staticmethod
+    def get_min_from_timestamp(timestamp, hour):
+        return Converter.get_full_part(timestamp - (hour * 3600) , 60)
+
+    @staticmethod
     def secs_to_dt(secs):
         return datetime.fromtimestamp(secs)
+
+    @staticmethod
+    def get_full_part(value, divisor):
+        if value < 0:
+            negative = True
+            value = int(math.fabs(value))
+        else:
+            negative = False
+
+        full = value / divisor
+        if negative == True:
+            full = full * -1
+        return full
+
 
 class UTC1(tzinfo):
     def utcoffset(self, dt):
