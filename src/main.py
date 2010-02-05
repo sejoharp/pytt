@@ -8,9 +8,7 @@ from google.appengine.ext.webapp.util import run_wsgi_app
 application = webapp.WSGIApplication(
                                      [('/', IndexHandler),
                                       ('/properties', PropertyHandler),
-                                      ('/overview', Overviewhandler),
-                                      ('/dbinit', DBInit)
-                                      ],
+                                      ('/overview', Overviewhandler)],
                                      debug=False)
 
 def main():

@@ -7,20 +7,22 @@
 	<tr>
 		<td>
 			<table>
-				<tr><td>start:</td><td>{{start}}</td></tr>
-				<tr><td>stop:</td><td>{{stop}}</td></tr>
+				 {% for time in times %}
+				<tr><td>start:</td><td>{{time.start|date:"H:i:s d.m.Y"}}</td></tr>
+				<tr><td>stop:</td><td>{{time.stop|date:"H:i:s d.m.Y"}}</td></tr>
+				{% endfor %}
 			</table>
 		</td>
 		<td>
 			<table>
 				<tr><td>worked time:</td><td>{{workedtime_today}}</td></tr>
-				<tr><td>finishing time:</td><td>{{finishing_time}}</td></tr>
+				<tr><td>finishing time:</td><td>{{finishing_time|date:"H:i:s d.m.Y"}}</td></tr>
 				<tr><td>time to work:</td><td>{{time_to_work}}</td></tr>
 			</table>
 		</td>
 		<td>
 			<table>
-				<tr><td>request time:</td><td>{{time}}</td></tr>
+				<tr><td>request time:</td><td>{% now "H:i:s d.m.Y" %}</td></tr>
 				<tr><td>worktime:</td><td>{{worktime}}</td></tr>
 				<tr><td>overtime:</td><td>{{overtime}}</td></tr>
 			</table>

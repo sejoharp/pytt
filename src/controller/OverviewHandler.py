@@ -17,28 +17,26 @@ class Overviewhandler(webapp.RequestHandler):
             self.__setNewUser()
         else:
             # data found
-            today = datetime.now(UTC1()).replace(hour=0, minute=0, second=0, microsecond=0)
-            times_today = self.__getTimes(user.key(), today)
+            today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+            self.__times_today = self.__getTimes(user.key(), today)
             if last_time.stop is None:
                 """ is still working """
                 self.__buttonlabel = "stop"
-                times_today[len(times_today) - 1].stop = datetime.now(UTC1())
+                self.__times_today[len(self.__times_today) - 1].stop = datetime.now()
             else:
                 """ is not working """
                 self.__buttonlabel = "start"
 
-            workedtime = self.__getWorkedtime(times_today)
+            workedtime = self.__getWorkedtime(self.__times_today)
             workedtime_with_overtime = Converter.td_to_secs(workedtime) + user.overtime
             time_to_work = user.worktime - workedtime_with_overtime
-            finishing_time = datetime.now(UTC1()) + Converter.secs_to_td(time_to_work)
-
+            self.__finishing_time = datetime.now() + Converter.secs_to_td(time_to_work)
+            if self.__buttonlabel == "stop":
+                self.__times_today[len(self.__times_today) - 1].stop = None
             """ format output values """
             self.__worktime_str = Converter.secs_to_str(user.worktime)
-            self.__finishing_time_str = Converter.dt_to_str(finishing_time)
             self.__time_to_work_str = Converter.secs_to_str(time_to_work)
             self.__workedtime_str = Converter.secs_to_str(Converter.td_to_secs(workedtime))
-            self.__start = Converter.dt_to_str(last_time.start)
-            self.__stop = Converter.dt_to_str(last_time.stop)
             self.__overtime_str = Converter.secs_to_str(user.overtime)
 
         output = self.__getOutput()
@@ -50,7 +48,7 @@ class Overviewhandler(webapp.RequestHandler):
         last_time = self.__getLastTime(user.key())
         self.__update_overtime(last_time, user)
 
-        now = datetime.now(UTC1())
+        now = datetime.now()
         if last_time is not None and last_time.stop is None:
             last_time.stop = now
             last_time.put()
@@ -64,7 +62,7 @@ class Overviewhandler(webapp.RequestHandler):
         """ updates the overtime from the given user
         preconditions: last_time and last_time.stop are not None """
         if last_time is not None and last_time.stop is not None:
-            today = datetime.now(UTC1()).replace(hour=0, minute=0, second=0, microsecond=0)
+            today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
             times_today = self.__getTimes(user.key(), today)
             if len(times_today) == 0:
                 last_day = last_time.start.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -76,15 +74,13 @@ class Overviewhandler(webapp.RequestHandler):
 
     def __getOutput(self):
         """ returns a dictionary with all output values """
-        return {"start": self.__start,
-                  "stop": self.__stop,
+        return {"times": self.__times_today,
                   "state": self.__buttonlabel,
                   "worktime": self.__worktime_str,
                   "overtime": self.__overtime_str,
                   "workedtime_today" : self.__workedtime_str,
-                  "finishing_time" : self.__finishing_time_str,
-                  "time_to_work": self.__time_to_work_str,
-                  "time": Converter.dt_to_str(datetime.now(UTC1())), }
+                  "finishing_time" : self.__finishing_time,
+                  "time_to_work": self.__time_to_work_str }
 
     def __setNewUser(self):
         """ sets the output values for a new user """
@@ -109,9 +105,9 @@ class Overviewhandler(webapp.RequestHandler):
         last_time = Time.gql("where userid = :userid ORDER BY start DESC",
                             userid=userid).get()
         if last_time is not None:
-            last_time.start = last_time.start.replace(tzinfo=UTC1()) + timedelta(hours=1)
+            last_time.start = last_time.start.replace() #+ timedelta(hours=1)
             if last_time.stop is not None:
-                last_time.stop = last_time.stop.replace(tzinfo=UTC1()) + timedelta(hours=1)
+                last_time.stop = last_time.stop.replace()# + timedelta(hours=1)
         return last_time
 
     def __getTimes(self, userid, date):
@@ -120,9 +116,9 @@ class Overviewhandler(webapp.RequestHandler):
         times = Time.gql("where userid = :userid and start >= :date",
                                    userid=userid, date=date).fetch(100)
         for time in times:
-            time.start = time.start.replace(tzinfo=UTC1()) + timedelta(hours=1)
+            time.start = time.start.replace() #+ timedelta(hours=1)
             if time.stop is not None:
-                time.stop = time.stop.replace(tzinfo=UTC1()) + timedelta(hours=1)
+                time.stop = time.stop.replace() #+ timedelta(hours=1)
         return times
 
     def __getWorkedtime(self, times):
