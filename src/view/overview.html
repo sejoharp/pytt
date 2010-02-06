@@ -10,6 +10,7 @@
 				 {% for time in times %}
 				<tr><td>start:</td><td>{{time.start|date:"H:i:s d.m.Y"}}</td></tr>
 				<tr><td>stop:</td><td>{{time.stop|date:"H:i:s d.m.Y"}}</td></tr>
+				<tr><td COLSPAN=2><hr /></td></tr>
 				{% endfor %}
 			</table>
 		</td>
@@ -22,16 +23,16 @@
 		</td>
 		<td>
 			<table>
-				<tr><td>request time:</td><td>{% now "H:i:s d.m.Y" %}</td></tr>
+				<tr><td>request time:</td><td>{{time|date:"H:i:s d.m.Y"}}</td></tr>
 				<tr><td>worktime:</td><td>{{worktime}}</td></tr>
 				<tr><td>overtime:</td><td>{{overtime}}</td></tr>
 			</table>
 		</td>
 	</tr>
 	<tr>
-		<td COLSPAN=2>
+		<td COLSPAN=3 align="center" valign="middle">
 			<form method="POST" action="/overview">
-				<input type="submit" value={{state}} size="25">
+				<input type="submit" value={{state}} style="width: 100%; height: 40px">
 			</form>
 		</td>
 	</tr>	
