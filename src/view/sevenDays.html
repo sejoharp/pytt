@@ -1,25 +1,25 @@
 {% extends "layout.html" %}
 {% block title %}
-	edit today
+	last seven days
 {% endblock %}
 {% block content %}
 <table>
-	<tr>
-		<th>start</th>
-		<th>stop</th>
-		<th>action</th>
-	</tr>
 	{% for time in times %}
 	<tr>
+		<td>start:</td>
 		<td>{{time.start|date:"d.m.Y H:i:s"}}</td>
-		<td>{{time.stop|date:"d.m.Y H:i:s"}}</td>
-		<td>
+		<td ROWSPAN=2>
 			<form method="get" action="/editTime">
 				<input type="hidden" name="timeID" value={{time.key}}>
-				<input type="submit" value="edit">
+				<input type="submit" value="edit" style="width: 100%; height: 40px">
 			</form>
 		</td>
 	</tr>
+	<tr>
+		<td>stop:</td>
+		<td>{{time.stop|date:"d.m.Y H:i:s"}}</td>
+	</tr>
+	<tr><td COLSPAN=2><hr /></td></tr>
 	{% endfor %}
 </table>
 {% endblock %}

@@ -1,8 +1,7 @@
 from controller.Helper import DataAccess
 from google.appengine.ext import webapp
-from google.appengine.ext.db import djangoforms
 from google.appengine.ext.webapp import template
-from model.models import Time
+from Forms import TimeForm
 import os
 
 class EditTimeHandler(webapp.RequestHandler):
@@ -25,9 +24,3 @@ class EditTimeHandler(webapp.RequestHandler):
             values = {'timeForm':timeForm, 'timeID': timeID}
             path = os.path.join(os.path.dirname(__file__), '../view/editTime.html')
             self.response.out.write(template.render(path, values))
-
-
-class TimeForm(djangoforms.ModelForm):
-    class Meta:
-        model = Time
-        exclude = ["userid"]

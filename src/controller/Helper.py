@@ -84,7 +84,7 @@ class DataAccess():
         """ returns all time datasets from the given date
         from the given userid """
         times = Time.gql("where userid = :userid and start >= :date",
-                                   userid=userid, date=date).fetch(100)
+                                   userid=userid, date=date).fetch(1000)
         for time in times:
             time.start = Converter.dt_to_UTC1(time.start)
             if time.stop is not None:

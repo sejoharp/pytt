@@ -13,10 +13,7 @@ class TodayHandler(webapp.RequestHandler):
         self.response.out.write(template.render(path, output))
 
     def post(self):
-        timeID = self.request.get("timeID")
-        values = {'timeID':timeID}
-        path = os.path.join(os.path.dirname(__file__), '/editTime')
-        self.response.out.write(template.render(path, values))
+        pass
 
 
 

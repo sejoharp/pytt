@@ -8,8 +8,8 @@
 		<td>
 			<table>
 				 {% for time in times %}
-				<tr><td>start:</td><td>{{time.start|date:"H:i:s d.m.Y"}}</td></tr>
-				<tr><td>stop:</td><td>{{time.stop|date:"H:i:s d.m.Y"}}</td></tr>
+				<tr><td>start:</td><td>{{time.start|date:"d.m.Y H:i:s"}}</td></tr>
+				<tr><td>stop:</td><td>{{time.stop|date:"d.m.Y H:i:s"}}</td></tr>
 				<tr><td COLSPAN=2><hr /></td></tr>
 				{% endfor %}
 			</table>
@@ -17,13 +17,13 @@
 		<td>
 			<table>
 				<tr><td>worked time:</td><td>{{workedtime_today}}</td></tr>
-				<tr><td>finishing time:</td><td>{{finishing_time|date:"H:i:s d.m.Y"}}</td></tr>
+				<tr><td>finishing time:</td><td>{{finishing_time|date:"d.m.Y H:i:s"}}</td></tr>
 				<tr><td>time to work:</td><td>{{time_to_work}}</td></tr>
 			</table>
 		</td>
 		<td>
 			<table>
-				<tr><td>request time:</td><td>{{time|date:"H:i:s d.m.Y"}}</td></tr>
+				<tr><td>request time:</td><td>{{time|date:"d.m.Y H:i:s"}}</td></tr>
 				<tr><td>worktime:</td><td>{{worktime}}</td></tr>
 				<tr><td>overtime:</td><td>{{overtime}}</td></tr>
 			</table>
