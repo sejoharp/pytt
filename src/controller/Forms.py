@@ -1,9 +1,9 @@
 from google.appengine.ext.db import djangoforms
-from model.models import Property
+from model.models import Property, Time
 
 class TimeForm(djangoforms.ModelForm):
     class Meta:
-        model = Property
+        model = Time
         exclude = ["userid"]
 
 class PropertyForm(djangoforms.ModelForm):
