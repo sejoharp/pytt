@@ -4,11 +4,15 @@ from controller.OverviewHandler import Overviewhandler
 from controller.PropertyHandler import PropertyHandler
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
+from controller.TodayHandler import TodayHandler
+from controller.EditTimeHandler import EditTimeHandler
 
 application = webapp.WSGIApplication(
                                      [('/', IndexHandler),
                                       ('/properties', PropertyHandler),
-                                      ('/overview', Overviewhandler)],
+                                      ('/overview', Overviewhandler),
+                                      ('/today', TodayHandler),
+                                      ('/editTime', EditTimeHandler)],
                                      debug=False)
 
 def main():

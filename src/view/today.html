@@ -1,0 +1,27 @@
+{% extends "layout.html" %}
+{% block title %}
+	today
+{% endblock %}
+{% block content %}
+
+	{{ message }}
+<table>
+	<tr>
+		<th>start</th>
+		<th>stop</th>
+		<th>action</th>
+	</tr>
+	{% for time in times %}
+	<tr>
+		<td>{{time.start|date:"H:i:s d.m.Y"}}</td>
+		<td>{{time.stop|date:"H:i:s d.m.Y"}}</td>
+		<td>
+			<form method="get" action="/editTime">
+				<input type="hidden" name="timeID" value={{time.key}}>
+				<input type="submit" value="edit">
+			</form>
+		</td>
+	</tr>
+	{% endfor %}
+</table>
+{% endblock %}

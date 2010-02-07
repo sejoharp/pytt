@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% block title %}
+	edit time
+{% endblock %}
+{% block content %}
+	<form action = "/editTime" method = "post">
+		<table>
+			{{ timeForm }}
+		</table>
+		<input type="hidden" name="timeID" value={{timeID}}>
+		<input type = "submit" value = "submit" >
+	</form>
+{% endblock %}

@@ -1,4 +1,6 @@
 from datetime import timedelta, datetime, tzinfo
+from google.appengine.api import users
+from model.models import Property, Time
 import math
 import time
 
@@ -67,6 +69,47 @@ class Converter():
             full = full * -1
         return full
 
+    @staticmethod
+    def dt_to_UTC1(time):
+        return time.replace(tzinfo=UTC1()) + timedelta(hours=1)
+
+class DataAccess():
+    @staticmethod
+    def getUser():
+        """ returns the properties from the current user """
+        return Property.gql("where email = :email", email=users.get_current_user().email()).get()
+
+    @staticmethod
+    def getTimes(userid, date):
+        """ returns all time datasets from the given date
+        from the given userid """
+        times = Time.gql("where userid = :userid and start >= :date",
+                                   userid=userid, date=date).fetch(100)
+        for time in times:
+            time.start = Converter.dt_to_UTC1(time.start)
+            if time.stop is not None:
+                time.stop = Converter.dt_to_UTC1(time.stop)
+        return times
+
+    @staticmethod
+    def getLastTime(userid):
+        """ returns the last time dataset from the given userid """
+        last_time = Time.gql("where userid = :userid ORDER BY start DESC",
+                            userid=userid).get()
+        if last_time is not None:
+            last_time.start = Converter.dt_to_UTC1(last_time.start)
+            if last_time.stop is not None:
+                last_time.stop = Converter.dt_to_UTC1(last_time.stop)
+        return last_time
+
+    @staticmethod
+    def getTime(timeID):
+        return Time.get(timeID)
+
+class Other():
+    @staticmethod
+    def getTodayUTC1():
+        return datetime.now(UTC1()).replace(hour=0, minute=0, second=0, microsecond=0)
 
 class UTC1(tzinfo):
     def utcoffset(self, dt):

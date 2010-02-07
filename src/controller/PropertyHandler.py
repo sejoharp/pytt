@@ -10,9 +10,7 @@ class PropertyHandler(webapp.RequestHandler):
         property = self.__getProperty()
         form = PropertyForm(data=self.request.POST, instance=property)
         if form.is_valid():
-            validated_property = form.save(commit=True)
-            #property.email = user.email()
-            #property.put()
+            form.save(commit=True)
             self.redirect('/overview')
         else:
             self.__setOutput(form)

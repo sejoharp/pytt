@@ -1,15 +1,14 @@
-from controller.Helper import Converter, UTC1
-from datetime import date, datetime, timedelta
-from google.appengine.api import users
+from controller.Helper import Converter, UTC1, DataAccess, Other
+from datetime import datetime, timedelta
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
-from model.models import Property, Time
+from model.models import Time
 import os
 
 class Overviewhandler(webapp.RequestHandler):
     def get(self):
-        user = self.__getUser()
-        last_time = self.__getLastTime(user.key())
+        user = DataAccess.getUser()
+        last_time = DataAccess.getLastTime(user.key())
 
         if last_time is None:
             """ never worked """
@@ -17,8 +16,8 @@ class Overviewhandler(webapp.RequestHandler):
             self.__setNewUser()
         else:
             # data found
-            today = datetime.now(UTC1()).replace(hour=0, minute=0, second=0, microsecond=0)
-            self.__times_today = self.__getTimes(user.key(), today)
+            today = Other.getTodayUTC1()
+            self.__times_today = DataAccess.getTimes(user.key(), today)
             if last_time.stop is None:
                 """ is still working """
                 self.__buttonlabel = "stop"
@@ -46,7 +45,7 @@ class Overviewhandler(webapp.RequestHandler):
 
     def post(self):
         user = self.__getUser()
-        last_time = self.__getLastTime(user.key())
+        last_time = DataAccess.getLastTime(user.key())
         self.__update_overtime(last_time, user)
 
         now = datetime.now(UTC1())
@@ -63,11 +62,11 @@ class Overviewhandler(webapp.RequestHandler):
         """ updates the overtime from the given user
         preconditions: last_time and last_time.stop are not None """
         if last_time is not None and last_time.stop is not None:
-            today = datetime.now(UTC1()).replace(hour=0, minute=0, second=0, microsecond=0)
-            times_today = self.__getTimes(user.key(), today)
+            today = Other.getTodayUTC1()
+            times_today = DataAccess.getTimes(user.key(), today)
             if len(times_today) == 0:
                 last_day = last_time.start.replace(hour=0, minute=0, second=0, microsecond=0)
-                times_last_day = self.__getTimes(user.key(), last_day)
+                times_last_day = DataAccess.getTimes(user.key(), last_day)
                 worked_time = self.__getWorkedtime(times_last_day)
                 workedtime_with_overtime = Converter.td_to_secs(worked_time) + user.overtime
                 user.overtime = workedtime_with_overtime - user.worktime
@@ -97,31 +96,6 @@ class Overviewhandler(webapp.RequestHandler):
         self.__time_to_work_str = None
         self.__workedtime_str = None
 
-    def __getUser(self):
-        """ returns the properties from the current user """
-        return Property.gql("where email = :email",
-                            email=users.get_current_user().email()).get()
-
-    def __getLastTime(self, userid):
-        """ returns the last time dataset from the given userid """
-        last_time = Time.gql("where userid = :userid ORDER BY start DESC",
-                            userid=userid).get()
-        if last_time is not None:
-            last_time.start = last_time.start.replace(tzinfo=UTC1()) + timedelta(hours=1)
-            if last_time.stop is not None:
-                last_time.stop = last_time.stop.replace(tzinfo=UTC1()) + timedelta(hours=1)
-        return last_time
-
-    def __getTimes(self, userid, date):
-        """ returns all time datasets from the given date
-        from the given userid """
-        times = Time.gql("where userid = :userid and start >= :date",
-                                   userid=userid, date=date).fetch(100)
-        for time in times:
-            time.start = time.start.replace(tzinfo=UTC1()) + timedelta(hours=1)
-            if time.stop is not None:
-                time.stop = time.stop.replace(tzinfo=UTC1()) + timedelta(hours=1)
-        return times
 
     def __getWorkedtime(self, times):
         """ returns the worked time from the given times """
