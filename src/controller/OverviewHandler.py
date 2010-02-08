@@ -44,7 +44,7 @@ class Overviewhandler(webapp.RequestHandler):
         self.response.out.write(template.render(path, output))
 
     def post(self):
-        user = self.__getUser()
+        user = DataAccess.getUser()
         last_time = DataAccess.getLastTime(user.key())
         self.__update_overtime(last_time, user)
 
