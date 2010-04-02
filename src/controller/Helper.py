@@ -113,10 +113,35 @@ class Other():
 
 class UTC1(tzinfo):
     def utcoffset(self, dt):
-        return timedelta(hours=1)
+        return timedelta(hours=1) + self.dst(dt)
 
-    def tzname(self, dt):
-        return "UTC +1"
+    def first_sunday_on_or_after(self, dt):
+        days_to_go = 6 - dt.weekday()
+        if days_to_go:
+            dt += timedelta(days_to_go)
+        return dt
 
     def dst(self, dt):
-        return timedelta(0)
+        """daylight saving time"""
+
+        if self.dst_start(dt.year) <= dt.replace(tzinfo=None) < self.dst_end(dt.year):
+            return timedelta(hours=1)
+        else:
+            return timedelta(hours=0)
+
+    def tzname(self, dt):
+        if self.dst(dt) == timedelta(hours=0):
+            # Central European Time
+            return "CET"
+        else:
+            # Central European Summer Time
+            return "CEST"
+
+    def dst_start(self, year):
+        # european summer time starts 1 am (utc) on the last Sunday of March
+        return self.first_sunday_on_or_after(datetime(year, 3, 25, 1))
+
+    def dst_end(self, year):
+        # european summer time ends 1 am (utc) on the last Sunday of October
+        return self.first_sunday_on_or_after(datetime(year, 10, 25, 1))
+
