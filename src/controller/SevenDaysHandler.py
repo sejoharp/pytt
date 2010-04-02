@@ -7,7 +7,7 @@ import os
 class SevenDaysHandler(webapp.RequestHandler):
     def get(self):
         user = DataAccess.getUser()
-        seven_days_ago = Other.getTodayUTC1() + datetime.timedelta(days= -7)
+        seven_days_ago = Other.getTodayUTC2() + datetime.timedelta(days= -7)
         times = DataAccess.getTimes(user.key(), seven_days_ago)
 
         output = {"times": times}

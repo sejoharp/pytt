@@ -108,7 +108,7 @@ class DataAccess():
 
 class Other():
     @staticmethod
-    def getTodayUTC1():
+    def getTodayUTC2():
         return datetime.now(UTC2()).replace(hour=0, minute=0, second=0, microsecond=0)
 
 class UTC2(tzinfo):

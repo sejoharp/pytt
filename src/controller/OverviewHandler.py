@@ -16,7 +16,7 @@ class Overviewhandler(webapp.RequestHandler):
             self.__setNewUser()
         else:
             # data found
-            today = Other.getTodayUTC1()
+            today = Other.getTodayUTC2()
             self.__times_today = DataAccess.getTimes(user.key(), today)
             if last_time.stop is None:
                 """ is still working """
@@ -62,7 +62,7 @@ class Overviewhandler(webapp.RequestHandler):
         """ updates the overtime from the given user
         preconditions: last_time and last_time.stop are not None """
         if last_time is not None and last_time.stop is not None:
-            today = Other.getTodayUTC1()
+            today = Other.getTodayUTC2()
             times_today = DataAccess.getTimes(user.key(), today)
             if len(times_today) == 0:
                 last_day = last_time.start.replace(hour=0, minute=0, second=0, microsecond=0)
