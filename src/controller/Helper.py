@@ -125,9 +125,9 @@ class UTC1(tzinfo):
         """daylight saving time"""
 
         if self.dst_start(dt.year) <= dt.replace(tzinfo=None) < self.dst_end(dt.year):
-            return timedelta(hours=1)
+            return timedelta(hours=2)
         else:
-            return timedelta(hours=0)
+            return timedelta(hours=1)
 
     def tzname(self, dt):
         if self.dst(dt) == timedelta(hours=0):
