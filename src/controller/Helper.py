@@ -71,7 +71,7 @@ class Converter():
 
     @staticmethod
     def dt_to_UTC1(time):
-        return time.replace(tzinfo=UTC1()) + timedelta(hours=1)
+        return time.replace(tzinfo=UTC2()) + timedelta(hours=1)
 
 class DataAccess():
     @staticmethod
@@ -109,9 +109,9 @@ class DataAccess():
 class Other():
     @staticmethod
     def getTodayUTC1():
-        return datetime.now(UTC1()).replace(hour=0, minute=0, second=0, microsecond=0)
+        return datetime.now(UTC2()).replace(hour=0, minute=0, second=0, microsecond=0)
 
-class UTC1(tzinfo):
+class UTC2(tzinfo):
     def utcoffset(self, dt):
         return timedelta(hours=1) + self.dst(dt)
 
@@ -125,9 +125,9 @@ class UTC1(tzinfo):
         """daylight saving time"""
 
         if self.dst_start(dt.year) <= dt.replace(tzinfo=None) < self.dst_end(dt.year):
-            return timedelta(hours=2)
-        else:
             return timedelta(hours=1)
+        else:
+            return timedelta(hours=0)
 
     def tzname(self, dt):
         if self.dst(dt) == timedelta(hours=0):
