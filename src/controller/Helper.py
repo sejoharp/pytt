@@ -71,7 +71,7 @@ class Converter():
 
     @staticmethod
     def dt_to_UTC1(time):
-        return time.replace(tzinfo=UTC2()) + timedelta(hours=1)
+        return time.replace(tzinfo=UTC2())
 
 class DataAccess():
     @staticmethod
