@@ -1,8 +1,12 @@
-from datetime import timedelta, datetime, tzinfo
-from google.appengine.api import users
-from model.models import Property, Time
 import math
 import time
+
+from datetime import datetime
+from datetime import timedelta
+from datetime import tzinfo
+from google.appengine.api import users
+from model.models import Property
+from model.models import Time
 
 class Converter():
     @staticmethod
@@ -50,7 +54,7 @@ class Converter():
 
     @staticmethod
     def get_min_from_timestamp(timestamp, hour):
-        return Converter.get_full_part(timestamp - (hour * 3600) , 60)
+        return Converter.get_full_part(timestamp - (hour * 3600), 60)
 
     @staticmethod
     def secs_to_dt(secs):
@@ -71,7 +75,25 @@ class Converter():
 
     @staticmethod
     def dt_to_UTC1(time):
-        return time.replace(tzinfo=UTC2())
+        return Converter.dt_to_tz(time, UTC(), UTC1())
+
+    @staticmethod
+    def dt_to_tz(time, from_tz, to_tz):
+        return time.replace(tzinfo=from_tz).astimezone(to_tz)
+
+    @staticmethod
+    def model_to_UTC1(time_model):
+        Converter.model_to_tz(time_model, UTC(), UTC1())
+
+    @staticmethod
+    def model_to_UTC(time_model):
+        Converter.model_to_tz(time_model, UTC1(), UTC())
+
+    @staticmethod
+    def model_to_tz(time_model, from_tz, to_tz):
+        time_model.start = Converter.dt_to_tz(time_model.start, from_tz, to_tz)
+        if time_model.stop is not None:
+            time_model.stop = Converter.dt_to_tz(time_model.stop, from_tz, to_tz)
 
 class DataAccess():
     @staticmethod
@@ -84,34 +106,36 @@ class DataAccess():
         """ returns all time datasets from the given date
         from the given userid """
         times = Time.gql("where userid = :userid and start >= :date",
-                                   userid=userid, date=date).fetch(1000)
+                         userid=userid, date=date).fetch(1000)
         for time in times:
-            time.start = Converter.dt_to_UTC1(time.start)
-            if time.stop is not None:
-                time.stop = Converter.dt_to_UTC1(time.stop)
+            Converter.model_to_UTC1(time)
         return times
 
     @staticmethod
     def getLastTime(userid):
         """ returns the last time dataset from the given userid """
         last_time = Time.gql("where userid = :userid ORDER BY start DESC",
-                            userid=userid).get()
+                             userid=userid).get()
         if last_time is not None:
-            last_time.start = Converter.dt_to_UTC1(last_time.start)
-            if last_time.stop is not None:
-                last_time.stop = Converter.dt_to_UTC1(last_time.stop)
+            Converter.model_to_UTC1(last_time)
         return last_time
 
     @staticmethod
     def getTime(timeID):
-        return Time.get(timeID)
+        time = Time.get(timeID)
+        Converter.model_to_UTC1(time)
+        return time
 
 class Other():
     @staticmethod
-    def getTodayUTC2():
-        return datetime.now(UTC2()).replace(hour=0, minute=0, second=0, microsecond=0)
+    def getTodayUTC1():
+        return Other.getNowUTC1().replace(hour=0, minute=0, second=0, microsecond=0)
 
-class UTC2(tzinfo):
+    @staticmethod
+    def getNowUTC1():
+        return datetime.now(UTC1())
+
+class UTC1(tzinfo):
     def utcoffset(self, dt):
         return timedelta(hours=1) + self.dst(dt)
 
@@ -145,3 +169,15 @@ class UTC2(tzinfo):
         # european summer time ends 1 am (utc) on the last Sunday of October
         return self.first_sunday_on_or_after(datetime(year, 10, 25, 1))
 
+class UTC(tzinfo):
+    def utcoffset(self, dt):
+        return self.dst(dt)
+
+    def dst(self, dt):
+        """daylight saving time"""
+        return timedelta(hours=0)
+
+
+    def tzname(self, dt):
+        return "UTC"
+    

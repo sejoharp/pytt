@@ -1,4 +1,4 @@
-from controller.Helper import Converter, UTC2, DataAccess, Other
+from controller.Helper import Converter, DataAccess, Other
 from datetime import datetime, timedelta
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
@@ -16,12 +16,12 @@ class Overviewhandler(webapp.RequestHandler):
             self.__setNewUser()
         else:
             # data found
-            today = Other.getTodayUTC2()
+            today = Other.getTodayUTC1()
             self.__times_today = DataAccess.getTimes(user.key(), today)
             if last_time.stop is None:
                 """ is still working """
                 self.__buttonlabel = "stop"
-                self.__times_today[len(self.__times_today) - 1].stop = datetime.now(UTC2())
+                self.__times_today[len(self.__times_today) - 1].stop = Other.getNowUTC1()
             else:
                 """ is not working """
                 self.__buttonlabel = "start"
@@ -31,7 +31,7 @@ class Overviewhandler(webapp.RequestHandler):
             time_to_work = user.worktime - workedtime_with_overtime
 
             """ format output values """
-            self.__finishing_time = datetime.now(UTC2()) + Converter.secs_to_td(time_to_work)
+            self.__finishing_time = Other.getNowUTC1() + Converter.secs_to_td(time_to_work)
             if self.__buttonlabel == "stop":
                 self.__times_today[len(self.__times_today) - 1].stop = None
             self.__worktime_str = Converter.secs_to_str(user.worktime)
@@ -48,7 +48,7 @@ class Overviewhandler(webapp.RequestHandler):
         last_time = DataAccess.getLastTime(user.key())
         self.__update_overtime(last_time, user)
 
-        now = datetime.now(UTC2())
+        now = Other.getNowUTC1()
         if last_time is not None and last_time.stop is None:
             last_time.stop = now
             last_time.put()
@@ -62,7 +62,7 @@ class Overviewhandler(webapp.RequestHandler):
         """ updates the overtime from the given user
         preconditions: last_time and last_time.stop are not None """
         if last_time is not None and last_time.stop is not None:
-            today = Other.getTodayUTC2()
+            today = Other.getTodayUTC1()
             times_today = DataAccess.getTimes(user.key(), today)
             if len(times_today) == 0:
                 last_day = last_time.start.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -81,7 +81,7 @@ class Overviewhandler(webapp.RequestHandler):
                   "workedtime_today" : self.__workedtime_str,
                   "finishing_time" : self.__finishing_time,
                   "time_to_work": self.__time_to_work_str,
-                  "time": datetime.now(UTC2()) }
+                  "time": Other.getNowUTC1() }
 
     def __setNewUser(self):
         """ sets the output values for a new user """

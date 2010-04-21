@@ -1,4 +1,4 @@
-from controller.Helper import DataAccess
+from controller.Helper import DataAccess, Converter
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 from Forms import TimeForm
@@ -18,7 +18,9 @@ class EditTimeHandler(webapp.RequestHandler):
         time = DataAccess.getTime(timeID)
         timeForm = TimeForm(data=self.request.POST, instance=time)
         if timeForm.is_valid():
-            timeForm.save(commit=True)
+            valid_time = timeForm.save(commit=False)
+            Converter.model_to_UTC(valid_time)
+            valid_time.put()
             self.redirect('/overview')
         else:
             values = {'timeForm':timeForm, 'timeID': timeID}

@@ -6,3 +6,8 @@ syntax: glob
 *~
 .project
 .pydevproject
+\.orig\..*$
+\.orig$
+\.chg\..*$
+\.rej$
+\.conflict\~$
