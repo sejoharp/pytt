@@ -17,8 +17,25 @@
 		<td>
 			<table>
 				<tr><td>worked time:</td><td>{{workedtime_today}}</td></tr>
-				<tr><td>finishing time:</td><td>{{finishing_time|date:"d.m.Y H:i:s"}}</td></tr>
-				<tr><td>time to work:</td><td>{{time_to_work}}</td></tr>
+				<tr><td>finishing time:</td>
+                                    <td>
+                                        {% if finishing_time %}
+                                            {{finishing_time|date:"d.m.Y H:i:s"}}
+                                        {% else %}
+                                            now
+                                        {% endif %}
+                                    </td>
+                                </tr>
+				<tr>
+                                    <td>time to work:</td>
+                                    <td>
+                                        {% if finishing_time %}
+                                            {{time_to_work}}
+                                        {% else %}
+                                            end of the work day reached
+                                        {% endif %}
+                                    </td>
+                                </tr>
 			</table>
 		</td>
 		<td>

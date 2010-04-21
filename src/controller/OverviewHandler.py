@@ -31,11 +31,16 @@ class Overviewhandler(webapp.RequestHandler):
             time_to_work = user.worktime - workedtime_with_overtime
 
             """ format output values """
-            self.__finishing_time = Other.getNowUTC1() + Converter.secs_to_td(time_to_work)
             if self.__buttonlabel == "stop":
                 self.__times_today[len(self.__times_today) - 1].stop = None
             self.__worktime_str = Converter.secs_to_str(user.worktime)
-            self.__time_to_work_str = Converter.secs_to_str(time_to_work)
+            if time_to_work < 0:
+                self.__time_to_work_str = None
+                self.__finishing_time = None
+            else:
+                self.__time_to_work_str = Converter.secs_to_str(time_to_work)
+                self.__finishing_time = Other.getNowUTC1() + Converter.secs_to_td(time_to_work)
+
             self.__workedtime_str = Converter.secs_to_str(Converter.td_to_secs(workedtime))
             self.__overtime_str = Converter.secs_to_str(user.overtime)
 
