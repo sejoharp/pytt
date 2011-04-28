@@ -3,6 +3,7 @@ from controller.IndexHandler import IndexHandler
 from controller.OverviewHandler import Overviewhandler
 from controller.PropertyHandler import PropertyHandler
 from controller.SevenDaysHandler import SevenDaysHandler
+from controller.ThreeMonthsHandler import ThreeMonthsHandler
 from controller.TodayHandler import TodayHandler
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
@@ -13,7 +14,8 @@ application = webapp.WSGIApplication(
                                       ('/overview', Overviewhandler),
                                       ('/today', TodayHandler),
                                       ('/editTime', EditTimeHandler),
-                                      ('/lastSevenDays', SevenDaysHandler)
+                                      ('/lastSevenDays', SevenDaysHandler),
+                                      ('/threemonths', ThreeMonthsHandler)
                                       ],
                                      debug=False)
 

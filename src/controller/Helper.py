@@ -41,6 +41,12 @@ class Converter():
         return str(day) + "d " + str(hour) + "h " + str(min) + "m " + str(sec) + "s"
 
     @staticmethod
+    def td_to_str2(delta):
+        hours, remainder = divmod(delta.seconds, 3600)
+        minutes, seconds = divmod(remainder, 60)
+        return str(hours) + ":" + str(minutes) + ":" + str(seconds)
+    
+    @staticmethod
     def dt_to_secs(value):
         return time.mktime(value.timetuple())
 
@@ -111,6 +117,25 @@ class DataAccess():
             Converter.model_to_UTC1(time)
         return times
 
+    @staticmethod
+    def getTimesFromTo(userid, startdate, enddate):
+        """ returns all time datasets from the given date
+        from the given userid """
+        times = Time.gql("where userid = :userid and start > :startdate and start < :enddate order by start",
+                         userid=userid, startdate=startdate, enddate=enddate).fetch(1000)
+        for time in times:
+            Converter.model_to_UTC1(time)
+        return times
+
+    @staticmethod
+    def getThreeMonthsTimes(userid):
+        """ returns all time datasets from the given date from the given userid """
+        times = Time.gql("where userid = :userid and start > datetime(2010,12,31) and start < datetime(2011,4,1) order by start",
+                         userid=userid).fetch(1000)
+        for time in times:
+            Converter.model_to_UTC1(time)
+        return times
+        
     @staticmethod
     def getLastTime(userid):
         """ returns the last time dataset from the given userid """

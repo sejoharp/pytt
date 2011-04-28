@@ -1,0 +1,46 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Erfassung Differenzsalden gegenüber gesetzl.
+	Regelarbeitszeit</title>
+</head>
+<body>
+	<div class="wrapper">
+		<table border="1px solid #000000;">
+			<tr>
+				<th>Name:</th>
+				<td> </td>
+			</tr>
+			<tr>
+				<th>Bereich/Abt/Gruppe:</th>
+				<td> </td>
+			</tr>
+			<tr>
+				<th>Personalnummer:</th>
+				<td> </td>
+			</tr>
+			<tr>
+				<th>Monat/Jahr:</th>
+				<td> </td>
+			</tr>
+		</table>
+
+		<table border="1px solid #000000;">
+			<tr>
+				<th>Datum</th>
+				<th>Unterschreitung</th>
+				<th>Überschreitung</th>
+				<th>Arbeitszeit</th>
+			</tr>
+			{% for day in days %}
+			<tr>
+				<td>{{day.date|date:"d.m.Y"}}</td>
+				<td>{{day.under}}</td>
+				<td>{{day.over}}</td>
+				<td>{{day.worktime}}</td>
+			</tr>
+			{% endfor %}
+		</table>
+	</div>
+</body>
